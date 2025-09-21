@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Sorpresa para ti</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&family=Parisienne&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gold:#f2c94c;
+    --soft-gold: rgba(242,201,76,0.12);
+    --bg-dark:#060608;
+  }
+  /* Reset */
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Montserrat,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+  body{
+    background: radial-gradient(ellipse at center, rgba(20,20,20,1) 0%, #000000 70%);
+    color:var(--gold);
+    overflow:hidden;
+  }
+
+  /* MENU INICIAL */
+  #menu{
+    height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .btn-open{
+    background: linear-gradient(180deg,var(--gold),#e0a800);
+    border:none;
+    padding:22px 42px;
+    border-radius:16px;
+    font-size:28px;
+    font-weight:800;
+    color:#111;
+    cursor:pointer;
+    box-shadow:0 10px 30px rgba(0,0,0,0.6), inset 0 -3px 6px rgba(0,0,0,0.15);
+    transition: transform .25s ease, filter .25s;
+  }
+  .btn-open:hover{ transform:translateY(-6px) scale(1.02); filter:brightness(1.05); }
+
+  /* AREA SORPRESA */
+  #sorpresa{
+    display:none;
+    position:relative;
+    width:100%;
+    height:100vh;
+    overflow:visible;
+  }
+
+  /* Canvas de fuegos artificiales: está arriba y no bloquea clicks */
+  canvas#fireworks{
+    position:fixed;
+    inset:0;
+    z-index:40;
+    pointer-events:none;
+  }
+
+  /* Contenido encima del canvas (globos, texto, flores) */
+  .content{
+    position:relative;
+    z-index:50;
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    padding-top:36px;
+    gap:18px;
+  }
+
+  /* GLOBOS (fila) */
+  .globos{
+    display:flex;
+    gap:14px;
+    align-items:flex-end;
+    justify-content:center;
+    margin-top:6px;
+    pointer-events:none;
+  }
+
+  .globo{
+    width:86px;
+    height:112px;
+    border-radius:52% 52% 46% 46% / 58% 58% 42% 42%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:800;
+    font-size:34px;
+    color:#fff;
+    position:relative;
+    transform-origin:center;
+    box-shadow:
+      0 18px 40px rgba(0,0,0,0.45),
+      inset -10px -14px 30px rgba(0,0,0,0.22);
+    animation:float var(--t,3.8s) ease-in-out infinite;
+  }
+
+  /* brillo/iluminación del globo */
+  .globo::before{
+    content:'';
+    position:absolute;
+    left:18%;
+    top:14%;
+    width:46%;
+    height:40%;
+    border-radius:50%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.06));
+    transform: rotate(-18deg);
+    filter: blur(6px);
+    opacity:.28;
+    pointer-events:none;
+  }
+
+  /* cuerda con lazo */
+  .globo::after{
+    content:'';
+    position:absolute;
+    left:50%;
+    bottom:-36px;
+    width:2px;
+    height:46px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.6));
+    transform:translateX(-50%) rotate(-6deg);
+    border-radius:2px;
+    box-shadow:0 1px 0 rgba(0,0,0,0.35);
+  }
+  /* pequeño lazo decorativo */
+  .globo .lazo{
+    position:absolute;
+    bottom:-18px;
+    left:50%;
+    transform:translateX(-50%);
+    width:22px;
+    height:12px;
+    background:transparent;
+  }
+  .globo .lazo:before, .globo .lazo:after{
+    content:'';
+    position:absolute;
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    top:50%;
+    transform:translateY(-50%);
+    box-shadow: 0 1px 1px rgba(0,0,0,0.25);
+  }
+  .globo .lazo:before{ left:0; transform-origin:right center; transform:translateY(-50%) rotate(-20deg); }
+  .globo .lazo:after{ right:0; transform-origin:left center; transform:translateY(-50%) rotate(20deg); }
+
+  /* colores de globos (degradados) */
+  .globo.g-amar { background: linear-gradient(180deg,#f6d874,#d89b00); color:#2b1200; }
+  .globo.g-wht { background: linear-gradient(180deg,#ffffff,#f8f0d8); color:#b06b00; filter:contrast(1.04); }
+
+  /* textos principales */
+  .titulo-small{
+    font-family: 'Parisienne', cursive;
+    font-size:34px;
+    opacity:0;
+    transform:translateY(6px) scale(.95);
+    animation:reveal 900ms cubic-bezier(.2,.9,.2,1) forwards 700ms;
+    letter-spacing:1px;
+  }
+  .titulo-large{
+    font-size:64px;
+    font-weight:800;
+    color:var(--gold);
+    text-shadow: 0 6px 28px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.02);
+    opacity:0;
+    transform:translateY(8px) scale(.95);
+    animation:reveal 900ms cubic-bezier(.2,.9,.2,1) forwards 1100ms;
+  }
+
+  @keyframes reveal{
+    to{ opacity:1; transform:translateY(0) scale(1); }
+  }
+
+  /* efecto de aparición tardía para las flores */
+  .flores{
+    position:relative;
+    margin-top:18px;
+    opacity:0;
+    transform:translateY(12px) scale(.98);
+    animation:reveal 900ms forwards 1800ms;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  /* Halo / fondo suave detrás de las flores para que no se vea "cuadro" negro */
+  .flores .halo{
+    position:absolute;
+    width:480px;
+    height:420px;
+    border-radius:50%;
+    background: radial-gradient(circle at 40% 30%, rgba(242,201,76,0.12), rgba(242,201,76,0.06) 30%, transparent 55%);
+    z-index:0;
+    filter: blur(20px);
+    transform:translateY(-40px);
+    pointer-events:none;
+  }
+  .flores img{
+    position:relative;
+    z-index:1;
+    width:300px;
+    display:block;
+    background:transparent; /* importante: no poner color de fondo */
+    image-rendering:auto;
+    filter: drop-shadow(0 14px 28px rgba(0,0,0,0.6)) saturate(1.05);
+  }
+
+  /* flotación */
+  @keyframes float {
+    0% { transform: translateY(0px) rotate(-2deg); }
+    50% { transform: translateY(-22px) rotate(4deg); }
+    100% { transform: translateY(0px) rotate(-2deg); }
+  }
+
+  /* responsive */
+  @media (max-width:720px){
+    .globo{ width:64px; height:86px; font-size:26px;}
+    .titulo-large{ font-size:42px;}
+    .flores img{ width:220px;}
+  }
+
+  /* pequeño helper para variar tiempos de animación */
+  .globo[data-speed="1"]{ --t:3.8s }
+  .globo[data-speed="2"]{ --t:4.6s }
+  .globo[data-speed="3"]{ --t:3.2s }
+  .globo[data-speed="4"]{ --t:4.1s }
+
+  /* reproducir música: ocultar controles */
+  audio{display:none}
+</style>
+</head>
+<body>
+
+<!-- PANTALLA INICIAL -->
+<div id="menu">
+  <button class="btn-open" id="openBtn">Abrir Sorpresa 🎁</button>
+</div>
+
+<!-- SORPRESA -->
+<div id="sorpresa" aria-hidden="true">
+  <canvas id="fireworks"></canvas>
+
+  <div class="content" role="main">
+    <div class="globos" aria-hidden="true">
+      <div class="globo g-amar" data-speed="1"><span style="pointer-events:none">❤</span><div class="lazo"></div></div>
+      <div class="globo g-wht" data-speed="2"><span style="pointer-events:none">L</span><div class="lazo"></div></div>
+      <div class="globo g-amar" data-speed="3"><span style="pointer-events:none">O</span><div class="lazo"></div></div>
+      <div class="globo g-wht" data-speed="1"><span style="pointer-events:none">V</span><div class="lazo"></div></div>
+      <div class="globo g-amar" data-speed="4"><span style="pointer-events:none">E</span><div class="lazo"></div></div>
+      <div class="globo g-wht" data-speed="2"><span style="pointer-events:none">❤</span><div class="lazo"></div></div>
+    </div>
+
+    <div class="titulo-small">Flores para ti</div>
+    <div class="titulo-large">TE AMO</div>
+
+    <div class="flores" aria-hidden="true">
+      <div class="halo"></div>
+      <!-- Asegúrate de tener flores.png en la misma carpeta; debe ser PNG con transparencia -->
+      <img src="flores.png" alt="Ramo de girasoles">
+    </div>
+  </div>
+
+  <!-- música (archivo local) -->
+  <audio id="musica" src="musica.mp3" loop preload="auto"></audio>
+</div>
+
+<script>
+const openBtn = document.getElementById('openBtn');
+const menu = document.getElementById('menu');
+const sorpresa = document.getElementById('sorpresa');
+const musica = document.getElementById('musica');
+
+openBtn.addEventListener('click', async () => {
+  menu.style.display = 'none';
+  sorpresa.style.display = 'block';
+  sorpresa.setAttribute('aria-hidden','false');
+  try { await musica.play(); } catch(e) { console.warn(e); }
+  startFireworks();
+});
+
+function startFireworks(){
+  const canvas = document.getElementById('fireworks');
+  const ctx = canvas.getContext('2d');
+  let DPR = Math.max(1, window.devicePixelRatio || 1);
+
+  function resize(){
+    DPR = Math.max(1, window.devicePixelRatio || 1);
+    canvas.width = window.innerWidth * DPR;
+    canvas.height = window.innerHeight * DPR;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.scale(DPR,DPR);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const rockets = [];
+  const particles = [];
+  const colors = ['#ffd24a','#ff6b6b','#ffb86b','#8be6a8','#6ec4ff','#c28bff'];
+
+  function rand(min,max){ return Math.random()*(max-min)+min }
+
+  function playBoom(){
+    const boom = new Audio("explosion.mp3");
+    boom.volume = 0.2 + Math.random()*0.3;
+    boom.play().catch(()=>{});
+  }
+
+  class Rocket{
+    constructor(x,y,vx,vy,color){
+      this.x=x; this.y=y; this.vx=vx; this.vy=vy;
+      this.color=color; this.trail=[]; this.age=0; this.exploded=false;
+    }
+    update(){
+      this.trail.push({x:this.x,y:this.y});
+      if(this.trail.length>6) this.trail.shift();
+      this.vy += 0.06; // gravedad
+      this.x += this.vx; this.y += this.vy;
+      this.age++;
+      if(this.vy > -0.5 || this.age > rand(35,80)){
+        if(!this.exploded) this.explode();
+        this.exploded = true;
+      }
+    }
+    explode(){
+      const count = Math.floor(rand(40,120));
+      for(let i=0;i<count;i++){
+        const angle = Math.random()*2*Math.PI;
+        const speed = rand(1.8,6.2);
+        particles.push(new Particle(this.x,this.y,Math.cos(angle)*speed,Math.sin(angle)*speed,this.color));
+      }
+      playBoom();
+    }
+    draw(ctx){
+      for(let i=0;i<this.trail.length-1;i++){
+        const a=this.trail[i],b=this.trail[i+1],t=i/this.trail.length;
+        ctx.strokeStyle = `rgba(${hexToRGB(this.color)},${0.18*(1-t)})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+      }
+      ctx.fillStyle = this.color;
+      ctx.beginPath(); ctx.arc(this.x,this.y,2.8,0,Math.PI*2); ctx.fill();
+    }
+  }
+
+  class Particle{
+    constructor(x,y,vx,vy,color){
+      this.x=x; this.y=y; this.vx=vx; this.vy=vy;
+      this.color=color; this.alpha=1;
+      this.decay=rand(0.01,0.025);
+      this.size=rand(1.2,3.8); this.trail=[];
+    }
+    update(){
+      this.trail.push({x:this.x,y:this.y});
+      if(this.trail.length>6) this.trail.shift();
+      this.vx*=0.99; this.vy*=0.99; this.vy+=0.02;
+      this.x+=this.vx; this.y+=this.vy;
+      this.alpha-=this.decay;
+    }
+    draw(ctx){
+      for(let i=0;i<this.trail.length-1;i++){
+        const a=this.trail[i],b=this.trail[i+1],t=i/this.trail.length;
+        ctx.strokeStyle = `rgba(${hexToRGB(this.color)},${(this.alpha*0.12)*(1-t)})`;
+        ctx.lineWidth = this.size*(1-t)*1.8;
+        ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+      }
+      const g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.size*3);
+      g.addColorStop(0,`rgba(${hexToRGB(this.color)},${Math.min(this.alpha,1)})`);
+      g.addColorStop(0.6,`rgba(${hexToRGB(this.color)},${this.alpha*0.2})`);
+      g.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=g;
+      ctx.beginPath(); ctx.arc(this.x,this.y,this.size*1.6,0,Math.PI*2); ctx.fill();
+    }
+  }
+
+  function hexToRGB(hex){
+    const c = hex.replace('#','');
+    const r=parseInt(c.substring(0,2),16);
+    const g=parseInt(c.substring(2,4),16);
+    const b=parseInt(c.substring(4,6),16);
+    return `${r},${g},${b}`;
+  }
+
+  function loop(){
+    ctx.clearRect(0,0,canvas.width/DPR,canvas.height/DPR);
+    if(Math.random()<0.06 || (rockets.length<2 && Math.random()<0.6)) launchOne();
+
+    for(let i=rockets.length-1;i>=0;i--){
+      rockets[i].update(); rockets[i].draw(ctx);
+      if(rockets[i].exploded) rockets.splice(i,1);
+    }
+
+    for(let i=particles.length-1;i>=0;i--){
+      particles[i].update();
+      if(particles[i].alpha<=0.02 || particles[i].y>canvas.height/DPR+60) particles.splice(i,1);
+      else particles[i].draw(ctx);
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  function launchOne(){
+    const x=rand(80,window.innerWidth-80);
+    const y=window.innerHeight-150;
+    const vx=rand(-1.5,1.5), vy=rand(-7.6,-5.5);
+    const col=colors[Math.floor(rand(0,colors.length))];
+    rockets.push(new Rocket(x,y,vx,vy,col));
+  }
+
+  loop();
+}
+</script>
+
+
+
+</body>
+</html>
