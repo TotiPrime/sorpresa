@@ -7,229 +7,73 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&family=Parisienne&display=swap" rel="stylesheet">
 <style>
   :root{
-    --gold:#f2c94c;
-    --soft-gold: rgba(242,201,76,0.12);
-    --bg-dark:#060608;
-  }
-  /* Reset */
-  *{box-sizing:border-box}
-  html,body{height:100%;margin:0;font-family:Montserrat,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
-  body{
-    background: radial-gradient(ellipse at center, rgba(20,20,20,1) 0%, #000000 70%);
-    color:var(--gold);
-    overflow:hidden;
-  }
+  --gold:#f2c94c;
+  --soft-gold: rgba(242,201,76,0.12);
+  --bg-dark:#060608;
+}
 
-  /* MENU INICIAL */
-  #menu{
-    height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
-  .btn-open{
-    background: linear-gradient(180deg,var(--gold),#e0a800);
-    border:none;
-    padding:22px 42px;
-    border-radius:16px;
-    font-size:28px;
-    font-weight:800;
-    color:#111;
-    cursor:pointer;
-    box-shadow:0 10px 30px rgba(0,0,0,0.6), inset 0 -3px 6px rgba(0,0,0,0.15);
-    transition: transform .25s ease, filter .25s;
-  }
-  .btn-open:hover{ transform:translateY(-6px) scale(1.02); filter:brightness(1.05); }
+/* Reset */
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Montserrat,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+body{
+  background: radial-gradient(ellipse at center, rgba(20,20,20,1) 0%, #000000 70%);
+  color:var(--gold);
+  overflow:hidden;
+}
 
-  /* AREA SORPRESA */
-  #sorpresa{
-    display:none;
-    position:relative;
-    width:100%;
-    height:100vh;
-    overflow:visible;
-  }
+/* MENU INICIAL */
+#menu{
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.btn-open{
+  background: linear-gradient(180deg,var(--gold),#e0a800);
+  border:none;
+  padding:22px 42px;
+  border-radius:16px;
+  font-size:28px;
+  font-weight:800;
+  color:#111;
+  cursor:pointer;
+  box-shadow:0 10px 30px rgba(0,0,0,0.6), inset 0 -3px 6px rgba(0,0,0,0.15);
+  transition: transform .25s ease, filter .25s;
+}
+.btn-open:hover{ transform:translateY(-6px) scale(1.02); filter:brightness(1.05); }
 
-  /* Canvas de fuegos artificiales: está arriba y no bloquea clicks */
-  canvas#fireworks{
-    position:fixed;
-    inset:0;
-    z-index:40;
-    pointer-events:none;
-  }
+/* AREA SORPRESA */
+#sorpresa{
+  display:none;
+  position:relative;
+  width:100%;
+  height:100vh;
+  overflow:visible;
+}
 
-  /* Contenido encima del canvas (globos, texto, flores) */
-  .content{
-    position:relative;
-    z-index:50;
-    width:100%;
-    height:100%;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:flex-start;
-    padding-top:36px;
-    gap:18px;
-  }
+/* Canvas de fuegos artificiales */
+canvas#fireworks{
+  position:fixed;
+  inset:0;
+  z-index:40;
+  pointer-events:none;
+}
 
-  /* GLOBOS (fila) */
-  .globos{
-    display:flex;
-    gap:14px;
-    align-items:flex-end;
-    justify-content:center;
-    margin-top:6px;
-    pointer-events:none;
-  }
+/* Contenido encima del canvas (globos, texto, flores) */
+.content{
+  position:relative;
+  z-index:50;
+  width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding-top:36px;
+  gap:18px;
+}
 
-  .globo{
-    width:86px;
-    height:112px;
-    border-radius:52% 52% 46% 46% / 58% 58% 42% 42%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-weight:800;
-    font-size:34px;
-    color:#fff;
-    position:relative;
-    transform-origin:center;
-    box-shadow:
-      0 18px 40px rgba(0,0,0,0.45),
-      inset -10px -14px 30px rgba(0,0,0,0.22);
-    animation:float var(--t,3.8s) ease-in-out infinite;
-  }
-
-  /* brillo/iluminación del globo */
-  .globo::before{
-    content:'';
-    position:absolute;
-    left:18%;
-    top:14%;
-    width:46%;
-    height:40%;
-    border-radius:50%;
-    background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.06));
-    transform: rotate(-18deg);
-    filter: blur(6px);
-    opacity:.28;
-    pointer-events:none;
-  }
-
-  /* cuerda con lazo */
-  .globo::after{
-    content:'';
-    position:absolute;
-    left:50%;
-    bottom:-36px;
-    width:2px;
-    height:46px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.6));
-    transform:translateX(-50%) rotate(-6deg);
-    border-radius:2px;
-    box-shadow:0 1px 0 rgba(0,0,0,0.35);
-  }
-  /* pequeño lazo decorativo */
-  .globo .lazo{
-    position:absolute;
-    bottom:-18px;
-    left:50%;
-    transform:translateX(-50%);
-    width:22px;
-    height:12px;
-    background:transparent;
-  }
-  .globo .lazo:before, .globo .lazo:after{
-    content:'';
-    position:absolute;
-    width:10px;
-    height:10px;
-    border-radius:50%;
-    top:50%;
-    transform:translateY(-50%);
-    box-shadow: 0 1px 1px rgba(0,0,0,0.25);
-  }
-  .globo .lazo:before{ left:0; transform-origin:right center; transform:translateY(-50%) rotate(-20deg); }
-  .globo .lazo:after{ right:0; transform-origin:left center; transform:translateY(-50%) rotate(20deg); }
-
-  /* colores de globos (degradados) */
-  .globo.g-amar { background: linear-gradient(180deg,#f6d874,#d89b00); color:#2b1200; }
-  .globo.g-wht { background: linear-gradient(180deg,#ffffff,#f8f0d8); color:#b06b00; filter:contrast(1.04); }
-
-  /* textos principales */
-  .titulo-small{
-    font-family: 'Parisienne', cursive;
-    font-size:34px;
-    opacity:0;
-    transform:translateY(6px) scale(.95);
-    animation:reveal 900ms cubic-bezier(.2,.9,.2,1) forwards 700ms;
-    letter-spacing:1px;
-  }
-  .titulo-large{
-    font-size:64px;
-    font-weight:800;
-    color:var(--gold);
-    text-shadow: 0 6px 28px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.02);
-    opacity:0;
-    transform:translateY(8px) scale(.95);
-    animation:reveal 900ms cubic-bezier(.2,.9,.2,1) forwards 1100ms;
-  }
-
-  @keyframes reveal{
-    to{ opacity:1; transform:translateY(0) scale(1); }
-  }
-
-  /* efecto de aparición tardía para las flores */
-  .flores{
-    position:relative;
-    margin-top:18px;
-    opacity:0;
-    transform:translateY(12px) scale(.98);
-    animation:reveal 900ms forwards 1800ms;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
-  /* Halo / fondo suave detrás de las flores para que no se vea "cuadro" negro */
-  .flores .halo{
-    position:absolute;
-    width:480px;
-    height:420px;
-    border-radius:50%;
-    background: radial-gradient(circle at 40% 30%, rgba(242,201,76,0.12), rgba(242,201,76,0.06) 30%, transparent 55%);
-    z-index:0;
-    filter: blur(20px);
-    transform:translateY(-40px);
-    pointer-events:none;
-  }
-  .flores img{
-    position:relative;
-    z-index:1;
-    width:300px;
-    display:block;
-    background:transparent; /* importante: no poner color de fondo */
-    image-rendering:auto;
-    filter: drop-shadow(0 14px 28px rgba(0,0,0,0.6)) saturate(1.05);
-  }
-
-  /* flotación */
-  @keyframes float {
-    0% { transform: translateY(0px) rotate(-2deg); }
-    50% { transform: translateY(-22px) rotate(4deg); }
-    100% { transform: translateY(0px) rotate(-2deg); }
-  }
-
-  /* responsive */
-  @media (max-width:720px){
-    .globo{ width:64px; height:86px; font-size:26px;}
-    .titulo-large{ font-size:42px;}
-    .flores img{ width:220px;}
-  }
-
-  <style>
-/* ... resto del CSS ... */
-
-/* Ajuste de globos para móviles */
+/* GLOBOS (fila) */
 .globos{
   display:flex;
   gap:14px;
@@ -237,39 +81,168 @@
   justify-content:center;
   margin-top:6px;
   pointer-events:none;
-  flex-wrap: wrap; /* permite que los globos se ajusten en filas */
+  flex-wrap:wrap; /* para móviles */
+}
+.globo{
+  width:86px;
+  height:112px;
+  border-radius:52% 52% 46% 46% / 58% 58% 42% 42%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+  font-size:34px;
+  color:#fff;
+  position:relative;
+  transform-origin:center;
+  box-shadow:
+    0 18px 40px rgba(0,0,0,0.45),
+    inset -10px -14px 30px rgba(0,0,0,0.22);
+  animation:float var(--t,3.8s) ease-in-out infinite;
 }
 
-/* Textos adaptativos */
+/* brillo/iluminación del globo */
+.globo::before{
+  content:'';
+  position:absolute;
+  left:18%;
+  top:14%;
+  width:46%;
+  height:40%;
+  border-radius:50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.06));
+  transform: rotate(-18deg);
+  filter: blur(6px);
+  opacity:.28;
+  pointer-events:none;
+}
+
+/* cuerda con lazo */
+.globo::after{
+  content:'';
+  position:absolute;
+  left:50%;
+  bottom:-36px;
+  width:2px;
+  height:46px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.6));
+  transform:translateX(-50%) rotate(-6deg);
+  border-radius:2px;
+  box-shadow:0 1px 0 rgba(0,0,0,0.35);
+}
+/* pequeño lazo decorativo */
+.globo .lazo{
+  position:absolute;
+  bottom:-18px;
+  left:50%;
+  transform:translateX(-50%);
+  width:22px;
+  height:12px;
+  background:transparent;
+}
+.globo .lazo:before, .globo .lazo:after{
+  content:'';
+  position:absolute;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  top:50%;
+  transform:translateY(-50%);
+  box-shadow: 0 1px 1px rgba(0,0,0,0.25);
+}
+.globo .lazo:before{ left:0; transform-origin:right center; transform:translateY(-50%) rotate(-20deg); }
+.globo .lazo:after{ right:0; transform-origin:left center; transform:translateY(-50%) rotate(20deg); }
+
+/* colores de globos (degradados) */
+.globo.g-amar { background: linear-gradient(180deg,#f6d874,#d89b00); color:#2b1200; }
+.globo.g-wht { background: linear-gradient(180deg,#ffffff,#f8f0d8); color:#b06b00; filter:contrast(1.04); }
+
+/* textos principales */
 .titulo-small{
+  font-family: 'Parisienne', cursive;
   font-size: clamp(24px,5vw,34px);
+  opacity:0;
+  transform:translateY(6px) scale(.95);
+  animation:reveal 900ms cubic-bezier(.2,.9,.2,1) forwards 700ms;
+  letter-spacing:1px;
 }
 .titulo-large{
   font-size: clamp(36px,8vw,64px);
+  font-weight:800;
+  color:var(--gold);
+  text-shadow: 0 6px 28px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.02);
+  opacity:0;
+  transform:translateY(8px) scale(.95);
+  animation:reveal 900ms cubic-bezier(.2,.9,.2,1) forwards 1100ms;
 }
 
-/* Flores adaptables */
+@keyframes reveal{
+  to{ opacity:1; transform:translateY(0) scale(1); }
+}
+
+/* efecto de aparición tardía para las flores */
+.flores{
+  position:relative;
+  margin-top:18px;
+  opacity:0;
+  transform:translateY(12px) scale(.98);
+  animation:reveal 900ms forwards 1800ms;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+/* Halo / fondo suave detrás de las flores */
+.flores .halo{
+  position:absolute;
+  width:480px;
+  height:420px;
+  border-radius:50%;
+  background: radial-gradient(circle at 40% 30%, rgba(242,201,76,0.12), rgba(242,201,76,0.06) 30%, transparent 55%);
+  z-index:0;
+  filter: blur(20px);
+  transform:translateY(-40px);
+  pointer-events:none;
+}
 .flores img{
+  position:relative;
+  z-index:1;
   width: min(80%,300px);
+  display:block;
+  background:transparent;
+  image-rendering:auto;
+  filter: drop-shadow(0 14px 28px rgba(0,0,0,0.6)) saturate(1.05);
 }
 
-/* Botón inicial en móviles */
+/* flotación de globos */
+@keyframes float {
+  0% { transform: translateY(0px) rotate(-2deg); }
+  50% { transform: translateY(-22px) rotate(4deg); }
+  100% { transform: translateY(0px) rotate(-2deg); }
+}
+
+/* reproducir música: ocultar controles */
+audio{display:none}
+
+/* pequeño helper para variar tiempos de animación */
+.globo[data-speed="1"]{ --t:3.8s }
+.globo[data-speed="2"]{ --t:4.6s }
+.globo[data-speed="3"]{ --t:3.2s }
+.globo[data-speed="4"]{ --t:4.1s }
+
+/* responsive */
 @media (max-width:720px){
+  .globo{ width:64px; height:86px; font-size:26px;}
+  .titulo-large{ font-size:42px;}
+  .flores img{ width:220px;}
   .btn-open{
     padding:16px 32px;
     font-size:22px;
   }
-  .globo{ width:64px; height:86px; font-size:26px;}
-  .flores img{ width:220px;}
-}
-
-/* Cohetes en móviles más arriba */
-@media (max-width:720px){
   canvas#fireworks{
-    top:-50px; /* sube un poco los fuegos */
+    top:-50px; /* cohetes más arriba en móviles */
   }
 }
-</style>
+
 
 
 
@@ -474,6 +447,7 @@ function startFireworks(){
 
 </body>
 </html>
+
 
 
 
