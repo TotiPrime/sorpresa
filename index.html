@@ -226,6 +226,54 @@
     .flores img{ width:220px;}
   }
 
+  <style>
+/* ... resto del CSS ... */
+
+/* Ajuste de globos para móviles */
+.globos{
+  display:flex;
+  gap:14px;
+  align-items:flex-end;
+  justify-content:center;
+  margin-top:6px;
+  pointer-events:none;
+  flex-wrap: wrap; /* permite que los globos se ajusten en filas */
+}
+
+/* Textos adaptativos */
+.titulo-small{
+  font-size: clamp(24px,5vw,34px);
+}
+.titulo-large{
+  font-size: clamp(36px,8vw,64px);
+}
+
+/* Flores adaptables */
+.flores img{
+  width: min(80%,300px);
+}
+
+/* Botón inicial en móviles */
+@media (max-width:720px){
+  .btn-open{
+    padding:16px 32px;
+    font-size:22px;
+  }
+  .globo{ width:64px; height:86px; font-size:26px;}
+  .flores img{ width:220px;}
+}
+
+/* Cohetes en móviles más arriba */
+@media (max-width:720px){
+  canvas#fireworks{
+    top:-50px; /* sube un poco los fuegos */
+  }
+}
+</style>
+
+
+
+  
   /* pequeño helper para variar tiempos de animación */
   .globo[data-speed="1"]{ --t:3.8s }
   .globo[data-speed="2"]{ --t:4.6s }
@@ -271,6 +319,17 @@
   <audio id="musica" src="musica.mp3" loop preload="auto"></audio>
 </div>
 
+<script>
+function launchOne(){
+  const x=rand(80,window.innerWidth-80);
+  // para móviles lanzamos más arriba
+  const y = window.innerWidth < 720 ? window.innerHeight - 200 : window.innerHeight - 150;
+  const vx=rand(-1.5,1.5), vy=rand(-7.6,-5.5);
+  const col=colors[Math.floor(rand(0,colors.length))];
+  rockets.push(new Rocket(x,y,vx,vy,col));
+}
+</script>
+  
 <script>
 const openBtn = document.getElementById('openBtn');
 const menu = document.getElementById('menu');
@@ -424,5 +483,6 @@ function startFireworks(){
 
 </body>
 </html>
+
 
 
